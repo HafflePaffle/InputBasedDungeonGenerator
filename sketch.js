@@ -77,41 +77,37 @@ class Room{
     this.position = createVector(x, y);
     this.dimensions = createVector(w, h);
     this.rCorner = createVector(x + w, y + h);
-    rect(x, y, w, h);
-
+    this.center = createVector(x + (w / 2), y + (h / 2));
     this.doorNummber = floor(random(1,5));
     this.doors = [];
+    this.doorPositions = [createVector(x + (w / 2), y + h), createVector(x + (w / 2), y), createVector(x, y + (h / 2)), createVector(x + w, y + (h / 2))];
+    shuffle(this.doorPositions, true);
+
+    this.Create('red');
+  }
+
+  CheckOverlap(otherRoom)
+  {
+    return !(
+      this.rCorner.x <= otherRoom.position.x ||  // this is to the left of other
+      this.position.x >= otherRoom.rCorner.x ||  // this is to the right of other
+      this.rCorner.y <= otherRoom.position.y ||  // this is above other
+      this.position.y >= otherRoom.rCorner.y     // this is below other
+    );
+  }
+
+  Create(c)
+  {
+    stroke(c);
+    rect(this.position.x, this.position.y, this.dimensions.x, this.dimensions.y);
+
     for(let i = 0; i < this.doorNummber; i++)
     {
-      if(i == 0)
-      {
-        let doorX = x + (w / 2);
-        let doorY = y + h;
-        this.doors[i] = createVector(doorX, doorY);
-      }
-      else if(i == 1)
-      {
-        let doorX = x + (w / 2);
-        let doorY = y;
-        this.doors[i] = createVector(doorX, doorY);
-      }
-      else if(i == 2)
-      {
-        let doorX = x ;
-        let doorY = y + (h / 2);
-        this.doors[i] = createVector(doorX, doorY);
-      }
-      else if(i == 3)
-      {
-        let doorX = x + w;
-        let doorY = y + (h / 2);
-        this.doors[i] = createVector(doorX, doorY);
-      }
-
+      this.doors[i] = this.doorPositions[i];
     }
 
     this.doors.forEach(door => {
-      stroke('green');
+      stroke('white');
       circle(door.x, door.y, 2);
     })
   }
@@ -125,6 +121,7 @@ class Walker{
     this.index = 0;
     this.uncertainty = u;
     this.color = c;
+    this.done = false;
 
     this.rooms = [];
     this.roomIndex = 0;
@@ -146,6 +143,9 @@ class Walker{
   Step()
   {
     let direction = this.PickDirection();
+    if(this.done)
+      return;
+
     let choiceX = floor(random(3 + (direction.x / this.uncertainty))) - 1;
     let choiceY = floor(random(3 + (direction.y / this.uncertainty))) - 1;
 
@@ -163,9 +163,7 @@ class Walker{
       {
         this.CreateRoom(75);
       }
- 
-    }
-          
+    }         
   }
 
   PickDirection()
@@ -173,7 +171,14 @@ class Walker{
     this.index++;
 
     if(this.index == this.scribble.index)
+    {
       this.CreateRoom(0);
+      this.done = true;
+      this.RemoveOverlap();
+    }
+
+    if(this.done)
+      return;
 
     let vectorX = this.scribble.array[this.index].position.x - this.position.x;
     let vectorY = this.scribble.array[this.index].position.y - this.position.y;
@@ -228,8 +233,41 @@ class Walker{
 
   RemoveOverlap()
   {
+    console.log(this.rooms);
+    // this.rooms = this.rooms.filter((room, i) => {
+    //   return !this.rooms.some((otherRoom, j) => {
+    //     return i !== j && room.CheckOverlap(otherRoom);
+    //   });
+    // });
 
+    // this.rooms.forEach(room =>{
+    //   let newArray = [];
+    //   for(let i = this.rooms.indexOf(room) + 1; i < this.rooms.length; i++)
+    //   {
+    //     if(room.CheckOverlap(this.rooms[i]))
+    //       newArray.push(this.rooms[i]);
+    //   }
+    // })
+
+    for (let i = 0; i < this.rooms.length; i++) {
+      let room = this.rooms[i];
+    
+      for (let j = i + 1; j < this.rooms.length; ) {
+        if (room.CheckOverlap(this.rooms[j])) {
+          this.rooms.splice(j, 1);
+        } else {
+          j++;
+        }
+      }
+    }
+    
+    console.log(this.rooms);
+
+    this.rooms.forEach(room =>{
+      room.Create('green');
+    })
   }
+
 
 
   //Kept for the report. Not used anymore
