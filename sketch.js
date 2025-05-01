@@ -234,21 +234,6 @@ class Walker{
   RemoveOverlap()
   {
     console.log(this.rooms);
-    // this.rooms = this.rooms.filter((room, i) => {
-    //   return !this.rooms.some((otherRoom, j) => {
-    //     return i !== j && room.CheckOverlap(otherRoom);
-    //   });
-    // });
-
-    // this.rooms.forEach(room =>{
-    //   let newArray = [];
-    //   for(let i = this.rooms.indexOf(room) + 1; i < this.rooms.length; i++)
-    //   {
-    //     if(room.CheckOverlap(this.rooms[i]))
-    //       newArray.push(this.rooms[i]);
-    //   }
-    // })
-
     for (let i = 0; i < this.rooms.length; i++) {
       let room = this.rooms[i];
     
@@ -262,7 +247,7 @@ class Walker{
     }
     
     console.log(this.rooms);
-
+    background(220, 125)
     this.rooms.forEach(room =>{
       room.Create('green');
     })
