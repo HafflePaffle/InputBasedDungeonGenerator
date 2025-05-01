@@ -6,6 +6,8 @@ function setup() {
   createCanvas(960, 540);
   background(220);
   scribble = new Scribble();
+  GridSetup();
+  frameRate(120);
 }
 
 function draw() {
@@ -35,6 +37,16 @@ function mouseReleased()
     painted = true;
   }
 
+}
+
+function GridSetup()
+{
+  stroke(0, 100);
+  for (var i = 0; i < width; i += 10) {
+    
+  	line(i, 0, i, height);
+  	line(width, i, 0, i);
+  }
 }
 
 
@@ -208,15 +220,15 @@ class Walker{
 
   CreateRoom(range)
   {
-    let h = randomGaussian(55, 15);
-    let w = randomGaussian(55, 15);
+    let h = ceil(randomGaussian(55, 15));
+    let w = ceil(randomGaussian(55, 15));
     // let offset1 = random(-1, 1);
     // offset1 = offset1 > 0 ? -1: 1;
     // let offset2 = random(-1, 1);
     // offset2 = offset2 > 0 ? -1: 1;
 
-    let hOffset = this.offset1 * noise(this.hSeed) * range;
-    let vOffset = this.offset2 * noise(this.vSeed) * range;
+    let hOffset = floor(this.offset1 * noise(this.hSeed) * range);
+    let vOffset = floor(this.offset2 * noise(this.vSeed) * range);
 
     if(this.roomIndex % 2 == 0)
     {
