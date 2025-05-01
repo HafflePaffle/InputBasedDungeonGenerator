@@ -78,9 +78,14 @@ class Room{
     this.dimensions = createVector(w, h);
     this.rCorner = createVector(x + w, y + h);
     this.center = createVector(x + (w / 2), y + (h / 2));
+
     this.doorNummber = floor(random(1,5));
     this.doors = [];
-    this.doorPositions = [createVector(x + (w / 2), y + h), createVector(x + (w / 2), y), createVector(x, y + (h / 2)), createVector(x + w, y + (h / 2))];
+    this.nOffset = floor(random(-(w / 4), (w / 4) + 1));
+    this.eOffset = floor(random(-(h / 4), (h / 4) + 1));
+    this.sOffset = floor(random(-(w / 4), (w / 4) + 1));
+    this.wOffset = floor(random(-(h / 4), (h / 4) + 1));
+    this.doorPositions = [createVector(x + (w / 2) + this.sOffset, y + h), createVector(x + (w / 2) + this.nOffset, y), createVector(x, y + (h / 2) + this.wOffset), createVector(x + w, y + (h / 2) + this.eOffset)];
     shuffle(this.doorPositions, true);
 
     this.Create('red');
