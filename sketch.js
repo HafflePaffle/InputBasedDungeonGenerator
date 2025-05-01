@@ -78,6 +78,42 @@ class Room{
     this.dimensions = createVector(w, h);
     this.rCorner = createVector(x + w, y + h);
     rect(x, y, w, h);
+
+    this.doorNummber = floor(random(1,5));
+    this.doors = [];
+    for(let i = 0; i < this.doorNummber; i++)
+    {
+      if(i == 0)
+      {
+        let doorX = x + (w / 2);
+        let doorY = y + h;
+        this.doors[i] = createVector(doorX, doorY);
+      }
+      else if(i == 1)
+      {
+        let doorX = x + (w / 2);
+        let doorY = y;
+        this.doors[i] = createVector(doorX, doorY);
+      }
+      else if(i == 2)
+      {
+        let doorX = x ;
+        let doorY = y + (h / 2);
+        this.doors[i] = createVector(doorX, doorY);
+      }
+      else if(i == 3)
+      {
+        let doorX = x + w;
+        let doorY = y + (h / 2);
+        this.doors[i] = createVector(doorX, doorY);
+      }
+
+    }
+
+    this.doors.forEach(door => {
+      stroke('green');
+      circle(door.x, door.y, 2);
+    })
   }
 }
 
