@@ -94,13 +94,18 @@ class Room{
     this.rCorner = createVector(x + w, y + h);
     this.center = createVector(x + (w / 2), y + (h / 2));
 
-    this.doorNummber = floor(random(1,5));
+    this.doorNummber = floor(random(4,5));
     this.doors = [];
-    this.nOffset = floor(random(-(w / 4), (w / 4) + 1));
-    this.eOffset = floor(random(-(h / 4), (h / 4) + 1));
-    this.sOffset = floor(random(-(w / 4), (w / 4) + 1));
-    this.wOffset = floor(random(-(h / 4), (h / 4) + 1));
-    this.doorPositions = [createVector(x + (w / 2) + this.sOffset, y + h), createVector(x + (w / 2) + this.nOffset, y), createVector(x, y + (h / 2) + this.wOffset), createVector(x + w, y + (h / 2) + this.eOffset)];
+    this.nOffset = floor(random(-(w / 4), (w / 4) + 1) / gridSize) * gridSize;
+    this.eOffset = floor(random(-(h / 4), (h / 4) + 1) / gridSize) * gridSize;
+    this.sOffset = floor(random(-(w / 4), (w / 4) + 1) / gridSize) * gridSize;
+    this.wOffset = floor(random(-(h / 4), (h / 4) + 1) / gridSize) * gridSize;
+
+    this.doorPositions = [
+      createVector(floor((x + (w / 2) + this.sOffset) / gridSize) * gridSize + gridSize / 2, y + h), 
+      createVector(floor((x + (w / 2) + this.nOffset) / gridSize) * gridSize + gridSize / 2, y), 
+      createVector(x, floor((y + (h / 2) + this.wOffset) / gridSize) * gridSize + gridSize / 2), 
+      createVector(x + w, floor((y + (h / 2) + this.eOffset) / gridSize) * gridSize + gridSize / 2)];
     shuffle(this.doorPositions, true);
 
     this.Create('red');
