@@ -284,8 +284,8 @@ class Walker{
     })
 
     connectRoomsWithCorridors(this.rooms, gridSize);
-
     readyToDrawCorridors = true;
+    
   }
 
 
