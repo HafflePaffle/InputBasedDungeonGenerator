@@ -1,5 +1,4 @@
-// dungeonCorridors.js
-// Requires: <script src="https://unpkg.com/delaunator@5.0.0/delaunator.min.js"></script>
+
 
 let corridorGrid = [];
 
@@ -20,10 +19,8 @@ class Node {
 }
 
 function drawLShapedCorridor(x1, y1, x2, y2, gridSize) {
-  // Horizontal then vertical
   let midX = x2;
   let midY = y1;
-
   for (let x = min(x1, midX); x <= max(x1, midX); x++) {
     drawCorridorTile(x, y1, gridSize);
   }
@@ -42,14 +39,12 @@ function drawCorridorTile(x, y, gridSize) {
 function computeMST(points, delaunayEdges) {
   const parent = Array(points.length).fill(0).map((_, i) => i);
   const find = x => (parent[x] === x ? x : parent[x] = find(parent[x]));
-
   let edges = [...delaunayEdges].map(str => {
     let [a, b] = str.split('-').map(Number);
     let dx = points[a].x - points[b].x;
     let dy = points[a].y - points[b].y;
     return { a, b, dist: dx * dx + dy * dy };
   }).sort((e1, e2) => e1.dist - e2.dist);
-
   const mst = [];
   for (const { a, b } of edges) {
     if (find(a) !== find(b)) {
@@ -60,11 +55,21 @@ function computeMST(points, delaunayEdges) {
   return mst;
 }
 
+function snapToGridCenter(pos, gridSize) {
+  return {
+    x: floor(pos.x / gridSize),
+    y: floor(pos.y / gridSize)
+  };
+}
+
 function connectRoomsWithCorridors(rooms, gridSize) {
   if (rooms.length < 2) return;
 
-  let points = rooms.map(r => r.doors[0] ?? r.center);
-  let delaunay = Delaunator.from(points.map(p => [p.x, p.y]));
+  
+  let doorPoints = rooms.map(r => r.doors[0]);
+  if (doorPoints.some(d => !d)) return;
+
+  let delaunay = Delaunator.from(doorPoints.map(p => [p.x, p.y]));
   let edgeSet = new Set();
 
   for (let i = 0; i < delaunay.triangles.length; i += 3) {
@@ -77,16 +82,11 @@ function connectRoomsWithCorridors(rooms, gridSize) {
     });
   }
 
-  let mstEdges = computeMST(points, edgeSet);
+  let mstEdges = computeMST(doorPoints, edgeSet);
 
   for (let [i, j] of mstEdges) {
-    let a = points[i];
-    let b = points[j];
-    let ax = floor(a.x / gridSize);
-    let ay = floor(a.y / gridSize);
-    let bx = floor(b.x / gridSize);
-    let by = floor(b.y / gridSize);
-
-    drawLShapedCorridor(ax, ay, bx, by, gridSize);
+    let a = snapToGridCenter(doorPoints[i], gridSize);
+    let b = snapToGridCenter(doorPoints[j], gridSize);
+    drawLShapedCorridor(a.x, a.y, b.x, b.y, gridSize);
   }
 }

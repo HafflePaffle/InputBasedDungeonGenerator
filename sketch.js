@@ -8,7 +8,7 @@ function setup() {
   background(220);
   scribble = new Scribble();
   GridSetup();
-  frameRate(120);
+  frameRate(3000);
   setupCorridorGrid(gridSize, width, height);
 
 }
