@@ -73,6 +73,11 @@ class Scribble{
   {
     stroke(0)
     this.array[this.index] = new Dot(createVector(mouseX, mouseY));
+
+    if(this.index != 0)
+    {
+      line(this.array[this.index - 1].position.x, this.array[this.index - 1].position.y, this.array[this.index].position.x, this.array[this.index].position.y);
+    }
     this.index++
   }
 
