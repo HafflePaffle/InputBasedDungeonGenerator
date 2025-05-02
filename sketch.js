@@ -104,7 +104,7 @@ class Room{
     this.rCorner = createVector(x + w, y + h);
     this.center = createVector(x + (w / 2), y + (h / 2));
 
-    this.doorNummber = floor(random(4,5));
+    this.doorNummber = floor(random(1,5));
     this.doors = [];
     this.nOffset = floor(random(-(w / 4), (w / 4) + 1) / gridSize) * gridSize;
     this.eOffset = floor(random(-(h / 4), (h / 4) + 1) / gridSize) * gridSize;
@@ -124,10 +124,10 @@ class Room{
   CheckOverlap(otherRoom)
   {
     return !(
-      this.rCorner.x <= otherRoom.position.x ||  // this is to the left of other
-      this.position.x >= otherRoom.rCorner.x ||  // this is to the right of other
-      this.rCorner.y <= otherRoom.position.y ||  // this is above other
-      this.position.y >= otherRoom.rCorner.y     // this is below other
+      this.rCorner.x + gridSize <= otherRoom.position.x ||  // this is to the left of other
+      this.position.x >= otherRoom.rCorner.x + gridSize ||  // this is to the right of other
+      this.rCorner.y + gridSize <= otherRoom.position.y ||  // this is above other
+      this.position.y >= otherRoom.rCorner.y + gridSize    // this is below other
     );
   }
 
