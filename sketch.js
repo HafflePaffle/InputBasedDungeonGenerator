@@ -1,6 +1,7 @@
 index = 0;
 painting = false;
 painted = false;
+gridSize = 10;
 
 function setup() {
   createCanvas(960, 540);
@@ -18,7 +19,6 @@ function draw() {
 
   if(painting)
     scribble.paint();
-
 }
 
 function mousePressed()
@@ -42,7 +42,7 @@ function mouseReleased()
 function GridSetup()
 {
   stroke(0, 100);
-  for (var i = 0; i < width; i += 10) {
+  for (var i = 0; i < width; i += gridSize) {
     
   	line(i, 0, i, height);
   	line(width, i, 0, i);
@@ -79,6 +79,7 @@ class Dot{
   constructor(position)
   {
     this.position = position;
+    strokeWeight(2);
     point(this.position);
   }
 }
