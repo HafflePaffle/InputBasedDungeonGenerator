@@ -32,6 +32,19 @@ function draw() {
   
   
 }
+function drawCorridorBetweenDoors(doorA, doorB, color = 'white') {
+  stroke(color);
+  strokeWeight(16);
+  noFill();
+  
+  // Draw an L-shaped corridor (horizontal first, then vertical)
+  beginShape();
+  vertex(doorA.x, doorA.y);
+  vertex(doorB.x, doorA.y);
+  vertex(doorB.x, doorB.y);
+  endShape();
+}
+
 
 function mousePressed()
 {

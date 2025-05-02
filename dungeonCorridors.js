@@ -1,13 +1,7 @@
+// dungeonCorridors.js
+// Requires: <script src="https://unpkg.com/delaunator@5.0.0/delaunator.min.js"></script>
 
 let corridorGrid = [];
-let corridorUIButtons = [];
-let showDelaunay = false;
-let showMST = false;
-let drawCorridors = false;
-
-let _delaunay = null;
-let _doorPoints = [];
-let _mstEdges = [];
 
 function setupCorridorGrid(gridSize, canvasWidth, canvasHeight) {
   let cols = floor(canvasWidth / gridSize);
@@ -22,99 +16,83 @@ class Node {
     this.x = x;
     this.y = y;
     this.walkable = true;
-    this.g = 0;
-    this.h = 0;
-    this.f = 0;
-    this.parent = null;
   }
 }
 
-function getNeighbors(node, grid) {
-  const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-  const neighbors = [];
-  for (let [dx, dy] of dirs) {
-    const x = node.x + dx;
-    const y = node.y + dy;
-    if (grid[x]?.[y]) neighbors.push(grid[x][y]);
+function drawLShapedCorridor(x1, y1, x2, y2, gridSize) {
+  let midX = x2;
+  let midY = y1;
+  for (let x = min(x1, midX); x <= max(x1, midX); x++) {
+    drawCorridorTile(x, y1, gridSize);
   }
-  return neighbors;
+  for (let y = min(y1, y2); y <= max(y1, y2); y++) {
+    drawCorridorTile(midX, y, gridSize);
+  }
 }
 
-function aStar(start, end, grid) {
-  let openSet = [start];
-  let closedSet = new Set();
-
-  for (let col of grid)
-    for (let node of col) {
-      node.g = 0;
-      node.h = 0;
-      node.f = 0;
-      node.parent = null;
-    }
-
-  while (openSet.length > 0) {
-    let current = openSet.reduce((a, b) => (a.f < b.f ? a : b));
-    if (current === end) {
-      let path = [];
-      while (current.parent) {
-        path.push(current);
-        current = current.parent;
-      }
-      return path.reverse();
-    }
-
-    openSet = openSet.filter(n => n !== current);
-    closedSet.add(current);
-
-    for (let neighbor of getNeighbors(current, grid)) {
-      if (!neighbor.walkable || closedSet.has(neighbor)) continue;
-      let tentativeG = current.g + 1;
-
-      if (!openSet.includes(neighbor)) openSet.push(neighbor);
-      else if (tentativeG >= neighbor.g) continue;
-
-      neighbor.g = tentativeG;
-      neighbor.h = abs(neighbor.x - end.x) + abs(neighbor.y - end.y);
-      neighbor.f = neighbor.g + neighbor.h;
-      neighbor.parent = current;
-    }
-  }
-
-  return [];
+function drawCorridorTile(x, y, gridSize) {
+  fill(150, 100, 255);
+  noStroke();
+  rect(x * gridSize, y * gridSize, gridSize, gridSize);
+  corridorGrid[x][y].walkable = true;
 }
 
-function connectRoomsWithCorridors(rooms, gridSize) {
-  if (rooms.length < 2) return;
-  _doorPoints = rooms.map(r => r.doors[0]);
-  if (_doorPoints.some(d => !d)) return;
-
-  // Mark room area as non-walkable (plus padding)
-  rooms.forEach(room => {
-    let x0 = floor(room.position.x / gridSize) - 1;
-    let y0 = floor(room.position.y / gridSize) - 1;
-    let x1 = floor((room.position.x + room.dimensions.x) / gridSize) + 1;
-    let y1 = floor((room.position.y + room.dimensions.y) / gridSize) + 1;
-    for (let x = x0; x <= x1; x++) {
-      for (let y = y0; y <= y1; y++) {
-        if (corridorGrid[x]?.[y]) corridorGrid[x][y].walkable = false;
-      }
+function computeMST(points, delaunayEdges) {
+  const parent = Array(points.length).fill(0).map((_, i) => i);
+  const find = x => (parent[x] === x ? x : parent[x] = find(parent[x]));
+  let edges = [...delaunayEdges].map(str => {
+    let [a, b] = str.split('-').map(Number);
+    let dx = points[a].x - points[b].x;
+    let dy = points[a].y - points[b].y;
+    return { a, b, dist: dx * dx + dy * dy };
+  }).sort((e1, e2) => e1.dist - e2.dist);
+  const mst = [];
+  for (const { a, b } of edges) {
+    if (find(a) !== find(b)) {
+      parent[find(a)] = find(b);
+      mst.push([a, b]);
     }
-    // Mark door tiles as walkable
-    room.doors.forEach(door => {
-      let gx = floor(door.x / gridSize);
-      let gy = floor(door.y / gridSize);
-      if (corridorGrid[gx]?.[gy]) corridorGrid[gx][gy].walkable = true;
+  }
+  return mst;
+}
+
+function connectRoomsWithCorridors(rooms) {
+  for (let i = 0; i < rooms.length - 1; i++) {
+    let roomA = rooms[i];
+    let roomB = rooms[i + 1];
+
+    let closestDist = Infinity;
+    let bestPair = [null, null];
+
+    roomA.doors.forEach(doorA => {
+      roomB.doors.forEach(doorB => {
+        let d = dist(doorA.x, doorA.y, doorB.x, doorB.y);
+        if (d < closestDist) {
+          closestDist = d;
+          bestPair = [doorA, doorB];
+        }
+      });
     });
-  });
 
-  _delaunay = Delaunator.from(_doorPoints.map(p => [p.x, p.y]));
-  const edgeSet = new Set();
-  for (let i = 0; i < _delaunay.triangles.length; i += 3) {
-    [[0, 1], [1, 2], [2, 0]].forEach(([u, v]) => {
-      let a = _delaunay.triangles[i + u];
-      let b = _delaunay.triangles[i + v];
-      edgeSet.add([Math.min(a, b), Math.max(a, b)].join('-'));
-    });
+    drawCorridorBetweenDoors(bestPair[0], bestPair[1]);
   }
-  _mstEdges = computeMST(_doorPoints, edgeSet);
 }
+
+function drawCorridorStages(gridSize) {
+  // (Optional extra logic if required, can leave empty)
+}
+
+
+  let mstEdges = computeMST(doorPoints, edgeSet);
+
+  for (let [i, j] of mstEdges) {
+    let a = doorPoints[i];
+    let b = doorPoints[j];
+    let ax = floor(a.x / gridSize);
+    let ay = floor(a.y / gridSize);
+    let bx = floor(b.x / gridSize);
+    let by = floor(b.y / gridSize);
+
+    drawLShapedCorridor(ax, ay, bx, by, gridSize);
+  }
+
