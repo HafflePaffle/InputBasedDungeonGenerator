@@ -9,6 +9,8 @@ function setup() {
   scribble = new Scribble();
   GridSetup();
   frameRate(120);
+  setupCorridorGrid(gridSize, width, height);
+
 }
 
 function draw() {
@@ -258,7 +260,8 @@ class Walker{
         }
       }
     }
-    
+    connectRoomsWithCorridors(this.rooms, gridSize); 
+
     console.log(this.rooms);
     background(220, 125)
     this.rooms.forEach(room =>{
