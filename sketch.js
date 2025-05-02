@@ -3,6 +3,8 @@ painting = false;
 painted = false;
 gridSize = 16;
 
+let readyToDrawCorridors = false;
+
 function setup() {
   createCanvas(1536, 864);
   background(220);
@@ -10,6 +12,8 @@ function setup() {
   GridSetup();
   frameRate(3000);
   setupCorridorGrid(gridSize, width, height);
+  
+
 
 }
 
@@ -21,6 +25,12 @@ function draw() {
 
   if(painting)
     scribble.paint();
+
+  if (readyToDrawCorridors) {
+    drawCorridorStages(gridSize);
+  }
+  
+  
 }
 
 function mousePressed()
@@ -265,13 +275,17 @@ class Walker{
         }
       }
     }
-    connectRoomsWithCorridors(this.rooms, gridSize); 
+  
 
     console.log(this.rooms);
     background(220, 125)
     this.rooms.forEach(room =>{
       room.Create('green');
     })
+
+    connectRoomsWithCorridors(this.rooms, gridSize);
+
+    readyToDrawCorridors = true;
   }
 
 
