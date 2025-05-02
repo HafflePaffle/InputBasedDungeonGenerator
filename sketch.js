@@ -1,10 +1,10 @@
 index = 0;
 painting = false;
 painted = false;
-gridSize = 10;
+gridSize = 16;
 
 function setup() {
-  createCanvas(960, 540);
+  createCanvas(1536, 864);
   background(220);
   scribble = new Scribble();
   GridSetup();
@@ -223,25 +223,20 @@ class Walker{
   {
     let h = ceil(randomGaussian(55, 15));
     let w = ceil(randomGaussian(55, 15));
-    // let offset1 = random(-1, 1);
-    // offset1 = offset1 > 0 ? -1: 1;
-    // let offset2 = random(-1, 1);
-    // offset2 = offset2 > 0 ? -1: 1;
+
+    h = ceil(h / gridSize) * gridSize;
+    w = ceil(w / gridSize) * gridSize;
 
     let hOffset = floor(this.offset1 * noise(this.hSeed) * range);
     let vOffset = floor(this.offset2 * noise(this.vSeed) * range);
 
-    if(this.roomIndex % 2 == 0)
-    {
-      this.offset1 *= -1;
-    }
-    else
-    {
-      this.offset2 *= -1;
-    }
+    (this.roomIndex % 2 === 0) ? (this.offset1 *= -1) : (this.offset2 *= -1);
+
+    let xPos = floor((this.position.x - w / 2 + hOffset) / gridSize) * gridSize;
+    let yPos = floor((this.position.y - h / 2 + vOffset) / gridSize) * gridSize;
 
     stroke(this.color);
-    this.rooms[this.roomIndex] = new Room(this.position.x - w / 2 + hOffset, this.position.y - h / 2 + vOffset, w, h);
+    this.rooms[this.roomIndex] = new Room(xPos, yPos, w, h);
     this.roomIndex++;
     this.maxSteps = floor(randomGaussian(500, 100));
     this.steps = 0;
