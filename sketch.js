@@ -32,9 +32,9 @@ function draw() {
   
   
 }
-function drawCorridorBetweenDoors(doorA, doorB, color = 'white') {
+function drawCorridorBetweenDoors(doorA, doorB, color = 'green') {
   stroke(color);
-  strokeWeight(16);
+  strokeWeight(gridSize - 2);
   noFill();
   
   // Draw an L-shaped corridor (horizontal first, then vertical)
