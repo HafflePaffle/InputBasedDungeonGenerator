@@ -18,6 +18,21 @@ class Node {
     this.walkable = true;
   }
 }
+// call this *before* you compute paths so the cells under rooms become obstacles
+function markRoomsOnGrid(rooms, gridSize) {
+  rooms.forEach(room => {
+    const gx0 = Math.floor(room.position.x / gridSize);
+    const gy0 = Math.floor(room.position.y / gridSize);
+    const gx1 = Math.floor((room.position.x + room.dimensions.x) / gridSize);
+    const gy1 = Math.floor((room.position.y + room.dimensions.y) / gridSize);
+    for (let x = gx0; x < gx1; x++) {
+      for (let y = gy0; y < gy1; y++) {
+        corridorGrid[x][y].isRoom     = true;
+        corridorGrid[x][y].walkable   = true;
+      }
+    }
+  });
+}
 
 function drawLShapedCorridor(x1, y1, x2, y2, gridSize) {
   let midX = x2;
@@ -79,20 +94,20 @@ function connectRoomsWithCorridors(rooms) {
 }
 
 function drawCorridorStages(gridSize) {
-  // (Optional extra logic if required, can leave empty)
+
 }
 
+let mstEdges = computeMST(doorPoints, edgeSet);
 
-  let mstEdges = computeMST(doorPoints, edgeSet);
+for (let [i, j] of mstEdges) {
+  let a = doorPoints[i];
+  let b = doorPoints[j];
 
-  for (let [i, j] of mstEdges) {
-    let a = doorPoints[i];
-    let b = doorPoints[j];
-    let ax = floor(a.x / gridSize);
-    let ay = floor(a.y / gridSize);
-    let bx = floor(b.x / gridSize);
-    let by = floor(b.y / gridSize);
+ 
+  let ax = Math.round(a.x / gridSize);
+  let ay = Math.round(a.y / gridSize);
+  let bx = Math.round(b.x / gridSize);
+  let by = Math.round(b.y / gridSize);
 
-    drawLShapedCorridor(ax, ay, bx, by, gridSize);
-  }
-
+  drawLShapedCorridor(ax, ay, bx, by, gridSize);
+}
