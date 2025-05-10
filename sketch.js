@@ -4,6 +4,7 @@ painted = false;
 gridSize = 16;
 
 let readyToDrawCorridors = false;
+let styleApplied = false;
 
 function setup() {
   createCanvas(1536, 864);
@@ -28,6 +29,28 @@ function draw() {
 
   if (readyToDrawCorridors) {
     drawCorridorStages(gridSize);
+
+  function applyMonochromeStyle() {
+      loadPixels();
+      for (let i = 0; i < pixels.length; i += 4) {
+        const avg = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
+        let v;
+        if (avg > 200) v = 255;
+        else if (avg > 100) v = 180;
+        else v = 50;
+        pixels[i] = pixels[i + 1] = pixels[i + 2] = v;
+      }
+      updatePixels();
+    }
+    function draw() {
+      if (readyToDrawCorridors) {
+        drawCorridorStages();
+        if (!styleApplied) {
+          applyMonochromeStyle();
+          styleApplied = true;
+        }
+      }
+    }
   }
   
   
@@ -37,7 +60,7 @@ function drawCorridorBetweenDoors(doorA, doorB, color = 'green') {
   strokeWeight(gridSize - 2);
   noFill();
   
-  // Draw an L-shaped corridor (horizontal first, then vertical)
+
   beginShape();
   vertex(doorA.x, doorA.y);
   vertex(doorB.x, doorA.y);
@@ -301,8 +324,19 @@ class Walker{
       room.Create('green');
     })
 
-    connectRoomsWithCorridors(this.rooms, gridSize);
+    connectAndAddDeadEnds(walker.rooms, gridSize, {
+      deadCorrMin: 4,
+      deadCorrMax: 8,
+      deadRoomMin: 3,
+      deadRoomMax: 5,
+      corrColor: 'blue',
+      roomColor: 'purple'
+    });
+    
+
     readyToDrawCorridors = true;
+
+    
     
   }
 

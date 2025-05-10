@@ -12,6 +12,17 @@
     <script src="libraries/p5.sound.min.js"></script>
     <script src="https://unpkg.com/delaunator@5.0.0/delaunator.min.js"></script>
 <script src="dungeonCorridors.js"></script>
+<script src="deadend.js"></script>
+
+<canvas id="dungeon"></canvas>
+<script type="module">
+  import DungeonRenderer from './dungeonRenderer.js';
+
+  const grid = generateDungeonGrid(...); // your map generator's 2D array
+  const dr = new DungeonRenderer('dungeon', 'Dungeon_Tileset.png');
+  dr.loadSheet().then(() => dr.render(grid));
+</script>
+
 
   </head>
 
