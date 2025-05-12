@@ -1,10 +1,6 @@
-index = 0;
 painting = false;
 painted = false;
 gridSize = 16;
-
-let readyToDrawCorridors = false;
-let styleApplied = false;
 
 function setup() {
   createCanvas(1536, 864);
@@ -13,9 +9,6 @@ function setup() {
   GridSetup();
   frameRate(3000);
   setupCorridorGrid(gridSize, width, height);
-  
-
-
 }
 
 function draw() {
@@ -26,48 +19,19 @@ function draw() {
 
   if(painting)
     scribble.paint();
-
-  if (readyToDrawCorridors) {
-    drawCorridorStages(gridSize);
-
-  function applyMonochromeStyle() {
-      loadPixels();
-      for (let i = 0; i < pixels.length; i += 4) {
-        const avg = (pixels[i] + pixels[i + 1] + pixels[i + 2]) / 3;
-        let v;
-        if (avg > 200) v = 255;
-        else if (avg > 100) v = 180;
-        else v = 50;
-        pixels[i] = pixels[i + 1] = pixels[i + 2] = v;
-      }
-      updatePixels();
-    }
-    function draw() {
-      if (readyToDrawCorridors) {
-        drawCorridorStages();
-        if (!styleApplied) {
-          applyMonochromeStyle();
-          styleApplied = true;
-        }
-      }
-    }
-  }
-  
-  
 }
+  
 function drawCorridorBetweenDoors(doorA, doorB, color = 'green') {
   stroke(color);
   strokeWeight(gridSize - 2);
   noFill();
   
-
   beginShape();
   vertex(doorA.x, doorA.y);
   vertex(doorB.x, doorA.y);
   vertex(doorB.x, doorB.y);
   endShape();
 }
-
 
 function mousePressed()
 {
@@ -304,7 +268,6 @@ class Walker{
 
   RemoveOverlap()
   {
-    console.log(this.rooms);
     for (let i = 0; i < this.rooms.length; i++) {
       let room = this.rooms[i];
     
@@ -317,8 +280,6 @@ class Walker{
       }
     }
   
-
-    console.log(this.rooms);
     background(220, 125)
     this.rooms.forEach(room =>{
       room.Create('green');
@@ -332,55 +293,5 @@ class Walker{
       corrColor: 'blue',
       roomColor: 'purple'
     });
-    
-
-    readyToDrawCorridors = true;
-
-    
-    
-  }
-
-
-
-  //Kept for the report. Not used anymore
-  PickUncertainDirection()
-  {
-    this.index++;
-    
-    let vectorX = this.uArray[this.index].position.x - this.position.x;
-    let vectorY = this.uArray[this.index].position.y - this.position.y;
-    let vector = createVector(vectorX, vectorY);
-
-    let disX = this.uArray[this.index].position.x - this.uArray[this.index - 1].position.x;
-    let disY = this.uArray[this.index].position.y - this.uArray[this.index - 1].position.y;
-    let distance = createVector(disX, disY);
-
-    if(p5.Vector.mag(vector) > p5.Vector.mag(distance))
-    {
-      this.index--;
-
-      vectorX = this.uArray[this.index].position.x - this.position.x;
-      vectorY = this.uArray[this.index].position.y - this.position.y;
-      vector = createVector(vectorX, vectorY);
-    }
-
-    vector = p5.Vector.normalize(vector);
-    return vector;
-  }
-
-  CreateUncertainty()
-  {
-    let newArray = [];
-    let j = 0;
-
-    for(let i = 0; i < this.scribble.array.length; i++)
-    {
-      if(i % this.uncertainty == 0)
-      {
-        newArray[j] = this.scribble.array[i];
-        j++
-      }
-    }
-    return newArray;
   }
 }
